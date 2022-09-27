@@ -8,3 +8,9 @@ export const GameOption=
     wallRange:[20, 50],
     growTime:1500
 }
+
+export const GameMode={
+    IDLE:0,
+    WAITING:1,
+    GROWING:2
+}

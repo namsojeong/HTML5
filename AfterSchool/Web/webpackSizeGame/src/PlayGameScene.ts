@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import GameWall from "./GameObject/GameWall";
-import { GameOption } from "./GameObject/GameOption";
+import { GameMode, GameOption } from "./GameObject/GameOption";
 import Vector2 = Phaser.Math.Vector2;
 import Player from "./GameObject/Player";
 import SquareText from "./GameObject/SquareText";
@@ -20,6 +20,13 @@ export class PlayGameScene extends Phaser.Scene
 
     gameWidth: number = 0;
     gameHeight: number = 0;
+
+    rotateTween:Phaser.Tweens.Tween;
+    growTween:Phaser.Tweens.Tween;
+
+    currentMode:number = GameMode.IDLE;
+
+    infoGroup:Phaser.GameObjects.Group;
 
     constructor()
     {
@@ -58,12 +65,85 @@ export class PlayGameScene extends Phaser.Scene
     grow():void
     {
         console.log("성장!");
+        if(this.currentMode == GameMode.WAITING)
+        {
+            this.currentMode = GameMode.GROWING;
+
+            this.growTween = this.tweens.add({
+                targets:this.playerTweenTargets,
+                scaleX:1,
+                scaleY:1,
+                duration:GameOption.growTime
+            });
+        }
     }
     stop():void
     {
-        console.log("멈춰!");
+        if(this.currentMode == GameMode.GROWING)
+        {
+            this.currentMode = GameMode.IDLE;
+            this.rotateTween.stop();
+            this.growTween.stop();
+
+            this.tweens.add({
+                targets:this.playerTweenTargets,
+                angle:0,
+                duration:300,
+                ease:'Cubic.easeOut',
+                onComplete:()=>{
+                    if(this.player.displayWidth <=this.rightSquare.x-this.leftSquare.x)
+                    {
+                        //아래로 빠지는 경우
+                        this.tweens.add({
+                            targets:this.playerTweenTargets,
+                            y:this.gameHeight+this.player.displayHeight,
+                            duration:600,
+                            ease:'Cubic.easeIn',
+                            onComplete:()=>{
+                                
+                            }
+                        })
+                    }
+                    else
+                    {
+                        // 어떻게든 걸치는 경우
+                        if(this.player.displayWidth<=this.rightWall.x-this.leftWall.x){
+                            this.fallAndBounce(true);
+                        }
+                        else{
+                            this.fallAndBounce(false);
+                        }
+                    }
+                }
+            })
+        }
     }
  
+
+    fallAndBounce(success:boolean):void{
+        let destY:number=this.gameHeight
+        -this.leftSquare.displayHeight
+        -this.player.displayHeight*0.5;
+
+        if(success)
+        {
+
+        }
+        else
+        {
+            destY=this.gameHeight
+            -this.leftWall.displayHeight
+            -this.leftSquare.displayHeight
+            -this.player.displayHeight*0.5;
+        }
+        this.tweens.add({
+            targets:this.playerTweenTargets,
+            y:destY,
+            duration:600,
+            ease:'Bounce.easeOut'
+        });
+    }
+
     placeWalls(): void
     {
         this.leftSquare = new GameWall(
@@ -101,9 +181,33 @@ export class PlayGameScene extends Phaser.Scene
 
          this.tweens.add({
             targets:this.playerTweenTargets,
-            y:200,
+            y:150,
             duration:500,
-            ease:'Cubic.easeOut'
+            ease:'Cubic.easeOut',
+            onComplete:()=> {
+                this.rotateTween = this.tweens.add({
+                    targets:this.playerTweenTargets,
+                    angle:40,
+                    duration:300,
+                    yoyo:true,
+                    repeat:-1
+                 });
+                 this.addInfo(holeWidth, wallWidth);
+                 this.currentMode = GameMode.WAITING;
+            }
          });
+    }
+
+    addInfo(holeWidth:number, wallWidth:number)
+    {
+        this.infoGroup = this.add.group();
+        let targetSquare:Phaser.GameObjects.Sprite
+        =this.add.sprite(this.gameWidth*0.5, this.gameHeight - this.leftSquare.displayHeight, 'square');
+        
+        targetSquare.alpha=0.3;
+        targetSquare.setOrigin(0.5, 1);
+        targetSquare.displayHeight = holeWidth+wallWidth;
+        targetSquare.displayWidth = holeWidth+wallWidth
+        this.infoGroup.add(targetSquare);
     }
 }
