@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin:0; padding: 0;
+        }
+        .box {
+            background-color: rgb(223, 54, 54);
+            color: #fff;
+            width: 100px;
+            height: 100px;
+            padding: 10px;
+            font-size: 18px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        .box.on {
+            font-size: 30px;   
+            width: 300px;
+            transform: rotateZ(360deg);
+        }
+    </style>
+    <script src="app.js"></script>
+</head>
+<body>
+    
+    <div class="box">
+        1
+    </div>
+    <button id="btn">클릭</button>
+    <br><br><br><br>
+    <button id="stop">멈춰!</button>
+    
+</body>
+</html>

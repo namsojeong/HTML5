@@ -1,0 +1,17 @@
+{
+  "name": "parceltemplate",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "watch": "parcel src/index.html -p 5600"
+  },
+  "keywords": [],
+  "author": "gondr",
+  "license": "MIT",
+  "dependencies": {
+    "phaser": "^3.55.2"
+  },
+  "devDependencies": {
+    "parcel": "^2.7.0"
+  }
+}
